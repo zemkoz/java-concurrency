@@ -6,7 +6,7 @@ import java.util.Random;
 import java.util.concurrent.ForkJoinPool;
 
 public final class MergeSortExample {
-    private static final int NUMBERS_COUNT = 100_000;
+    private static final int NUMBERS_COUNT = 10_000_000;
     private static final Random randomGenerator = new Random();
 
     public static void main(String[] args) {

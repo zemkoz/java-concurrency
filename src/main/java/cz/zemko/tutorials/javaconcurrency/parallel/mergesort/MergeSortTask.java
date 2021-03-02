@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.concurrent.RecursiveTask;
 
 public final class MergeSortTask<T extends Comparable<T>> extends RecursiveTask<List<T>> {
+    private static final int LIMIT_SEQUENTIAL_SORT = 50;
+
     private final List<T> aList;
     private final int leftIndex;
     private final int rightIndex;
@@ -22,8 +24,8 @@ public final class MergeSortTask<T extends Comparable<T>> extends RecursiveTask<
 
     @Override
     protected List<T> compute() {
-        if (leftIndex >= rightIndex) {
-            return Collections.singletonList(aList.get(leftIndex));
+        if (rightIndex - leftIndex < LIMIT_SEQUENTIAL_SORT) {
+            return sequentialMergeSort(aList, leftIndex, rightIndex);
         }
 
         var middleIndex = (leftIndex + rightIndex) / 2;
@@ -35,6 +37,21 @@ public final class MergeSortTask<T extends Comparable<T>> extends RecursiveTask<
 
         var leftSortedList = leftSortTask.join();
         var rightSortedList = rightSortTask.join();
+        return mergeTwoSortedLists(leftSortedList, rightSortedList);
+    }
+
+    private static <T extends Comparable<T>> List<T> sequentialMergeSort(List<T> aList, int leftIndex, int rightIndex) {
+        if (leftIndex >= rightIndex) {
+            if (aList.isEmpty()) {
+                return Collections.emptyList();
+            } else {
+                return Collections.singletonList(aList.get(leftIndex));
+            }
+        }
+
+        var middleIndex = (leftIndex + rightIndex) / 2;
+        var leftSortedList = sequentialMergeSort(aList, leftIndex, middleIndex);
+        var rightSortedList = sequentialMergeSort(aList, middleIndex + 1, rightIndex);
         return mergeTwoSortedLists(leftSortedList, rightSortedList);
     }
 
